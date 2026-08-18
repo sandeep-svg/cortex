@@ -174,8 +174,8 @@ GEM
     multi_xml (0.9.1)
       bigdecimal (>= 3.1, < 5)
     multipart-post (2.4.1)
-    neighbor (0.6.0)
-      activerecord (>= 7.1)
+    neighbor (1.2.0)
+      activerecord (>= 7.2)
     net-http (0.9.1)
       uri (>= 0.11.1)
     net-imap (0.6.6)
@@ -385,7 +385,7 @@ DEPENDENCIES
   dotenv-rails
   httparty
   importmap-rails
-  neighbor (~> 0.4)
+  neighbor (~> 1.2)
   nokogiri (~> 1.18)
   pdf-reader (~> 2.13)
   pg (~> 1.1)
