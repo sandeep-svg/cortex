@@ -1,0 +1,82 @@
+<% content_for :title, "Cortex — Ask your documents" %>
+
+<section class="hero">
+  <h1>Ask your documents.<br><span class="grad">Get precise answers.</span></h1>
+  <p>
+    Cortex is a retrieval-augmented intelligence platform: upload PDFs, Word files, Markdown
+    and more, and ask questions in natural language. Every answer is grounded in your documents
+    and cites the exact sources it used.
+  </p>
+  <div class="hero-actions">
+    <% if authenticated? && current_user.admin? %>
+      <%= link_to "Open dashboard", dashboard_path, class: "btn btn-primary" %>
+      <%= link_to "Chat with documents", queries_path, class: "btn btn-ghost" %>
+    <% elsif authenticated? %>
+      <%= link_to "Open chat", queries_path, class: "btn btn-primary" %>
+    <% else %>
+      <%= link_to "Create account", new_registration_path, class: "btn btn-primary" %>
+      <%= link_to "Sign in", new_session_path, class: "btn btn-ghost" %>
+    <% end %>
+  </div>
+</section>
+
+<h2 class="section-title">Why Cortex</h2>
+<div class="grid grid-cards">
+  <div class="card card-hover feature-card">
+    <div class="feature-icon">🧠</div>
+    <div class="card-title">Multiple LLM providers</div>
+    <p>OpenAI, Anthropic, Gemini or a fully local Ollama — switch the active provider any time. API keys are stored encrypted.</p>
+  </div>
+  <div class="card card-hover feature-card">
+    <div class="feature-icon">📄</div>
+    <div class="card-title">Any document, any format</div>
+    <p>PDF, Word, HTML, Markdown, CSV, JSON and plain text are extracted, chunked and embedded automatically in the background.</p>
+  </div>
+  <div class="card card-hover feature-card">
+    <div class="feature-icon">🎯</div>
+    <div class="card-title">Grounded answers</div>
+    <p>pgvector cosine search retrieves the most relevant passages, and the LLM answers using only that context — with source citations.</p>
+  </div>
+  <div class="card card-hover feature-card">
+    <div class="feature-icon">⚡</div>
+    <div class="card-title">Streamed in real time</div>
+    <p>Answers stream to your browser over Server-Sent Events, token by token, with relevance scores for every retrieved source.</p>
+  </div>
+</div>
+
+<h2 class="section-title">How it works</h2>
+<div class="card">
+  <div class="step-list">
+    <div class="step">
+      <div class="step-num">1</div>
+      <p><strong>Upload</strong> — admins add documents; text is extracted from any supported format.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <p><strong>Embed</strong> — text becomes overlapping chunks, converted to vectors by the configured embedding model.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <p><strong>Store</strong> — vectors live in PostgreSQL via pgvector, right next to the text.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <p><strong>Ask</strong> — your question is embedded, the nearest chunks are retrieved, and the LLM answers with that context — streamed live.</p>
+    </div>
+  </div>
+</div>
+
+<div class="cta-band">
+  <h2>Ready to talk to your documents?</h2>
+  <p>
+    <%= @provider ? "Powered by #{@provider.name} with #{@provider.chat_model}." : "Configured by an administrator — then ask away." %>
+  </p>
+  <div class="cta-actions">
+    <% if authenticated? %>
+      <%= link_to "Open chat", queries_path, class: "btn btn-primary" %>
+    <% else %>
+      <%= link_to "Create account", new_registration_path, class: "btn btn-primary" %>
+      <%= link_to "Sign in", new_session_path, class: "btn btn-ghost" %>
+    <% end %>
+  </div>
+</div>

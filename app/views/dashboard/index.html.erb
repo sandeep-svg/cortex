@@ -1,0 +1,99 @@
+<% content_for :title, "Cortex — Ask your documents" %>
+
+<section class="hero">
+  <h1>Ask your documents.<br><span class="grad">Get precise answers.</span></h1>
+  <p>
+    Upload any PDF, Word, Markdown or text file. Cortex reads it, stores it as vector embeddings in
+    PostgreSQL + pgvector, and answers your questions using only what your documents actually say.
+  </p>
+  <div class="hero-actions">
+    <%= link_to "⚡ Ask a question", queries_path, class: "btn btn-primary" %>
+    <%= link_to "Upload documents", documents_path, class: "btn btn-ghost" %>
+    <% if Provider.active_provider.nil? %>
+      <%= link_to "Configure an AI provider", admin_providers_path, class: "btn btn-ghost" %>
+    <% end %>
+  </div>
+</section>
+
+<% if Provider.active_provider.nil? %>
+  <div class="card" style="border-color: rgba(251,191,36,.35); background: rgba(251,191,36,.06); margin-bottom: 22px;">
+    <div class="card-title">Setup required</div>
+    <p class="muted" style="margin: 0 0 12px;">
+      No LLM provider is active yet. Activate one (OpenAI, Anthropic, Gemini or local Ollama) and add your API key —
+      you can switch providers any time from the AI Providers page.
+    </p>
+    <%= link_to "Set up provider →", admin_providers_path, class: "btn btn-primary btn-sm" %>
+  </div>
+<% end %>
+
+<div class="grid grid-stats">
+  <div class="card stat"><div class="stat-value"><%= @stats[:documents] %></div><div class="stat-label">Documents</div></div>
+  <div class="card stat"><div class="stat-value"><%= @stats[:chunks] %></div><div class="stat-label">Vector chunks</div></div>
+  <div class="card stat"><div class="stat-value"><%= @stats[:queries] %></div><div class="stat-label">Questions asked</div></div>
+  <div class="card stat">
+    <div class="stat-value"><%= @provider ? @provider.name : "—" %></div>
+    <div class="stat-label">Active provider</div>
+  </div>
+</div>
+
+<div class="two-col" style="margin-top: 34px;">
+  <div>
+    <h2 class="section-title">How it works</h2>
+    <div class="card">
+      <div class="step-list">
+        <div class="step">
+          <div class="step-num">1</div>
+          <p><strong>Upload</strong> — any PDF, DOCX, HTML, Markdown, CSV, JSON or text file. A background job extracts the text.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <p><strong>Embed</strong> — text is split into overlapping chunks and converted to vector embeddings by your configured embedding model.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <p><strong>Store</strong> — vectors live in a <span class="hl">vector(3072)</span> column in PostgreSQL via pgvector.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <p><strong>Ask</strong> — your question is embedded, the nearest chunks are found with cosine search, and the active LLM answers with that context streamed to your browser.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <h2 class="section-title">Recent activity</h2>
+    <div class="card">
+      <% if @queries.any? %>
+        <% @queries.each do |q| %>
+          <div style="padding: 10px 0; border-bottom: 1px solid rgba(148,163,255,.08);">
+            <div style="font-weight: 600; font-size: 14px;"><%= truncate(q.question, length: 60) %></div>
+            <div class="card-hint mono"><%= q.model || "—" %> · <%= time_ago_in_words(q.created_at) %> ago</div>
+          </div>
+        <% end %>
+        <%= link_to "Open chat →", queries_path, class: "btn btn-ghost btn-sm", style: "margin-top: 14px;" %>
+      <% else %>
+        <div class="empty-state">
+          <div class="icon">💬</div>
+          <div>No questions yet — try the chat!</div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div>
+  <h2 class="section-title">Recent documents</h2>
+  <div class="grid grid-cards">
+    <% @documents.each do |doc| %>
+      <%= render partial: "documents/card", locals: { document: doc } %>
+    <% end %>
+    <% if @documents.empty? %>
+      <div class="card empty-state">
+        <div class="icon">📄</div>
+        <div>Nothing uploaded yet.</div>
+        <%= link_to "Upload your first document", documents_path, class: "btn btn-ghost btn-sm", style: "margin-top: 12px;" %>
+      </div>
+    <% end %>
+  </div>
+</div>

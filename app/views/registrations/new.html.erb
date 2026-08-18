@@ -1,0 +1,38 @@
+<% content_for :title, "Create account — Cortex" %>
+
+<div class="auth-wrap">
+  <div class="auth-card glass">
+    <div class="auth-brand">
+      <span class="brand-mark">◈</span>
+      <span class="brand-name">CORTEX</span>
+    </div>
+
+    <h1 class="auth-title">Create your account</h1>
+    <p class="auth-sub">Uploads, providers and roles are managed by admins — sign up to start asking questions.</p>
+
+    <%= form_with model: @user, url: registration_path, class: "auth-form" do |form| %>
+      <% if @user.errors.any? %>
+        <div class="flash flash-error">
+          <%= @user.errors.full_messages.join(", ") %>
+        </div>
+      <% end %>
+
+      <div class="field">
+        <%= form.label :email_address, "Email address" %>
+        <%= form.email_field :email_address, required: true, autocomplete: "username",
+                             placeholder: "you@example.com", value: @user.email_address %>
+      </div>
+
+      <div class="field">
+        <%= form.label :password, "Password" %>
+        <%= form.password_field :password, required: true, autocomplete: "new-password",
+                                placeholder: "At least 8 characters", maxlength: 72 %>
+        <span class="hint">Minimum 8 characters.</span>
+      </div>
+
+      <%= form.submit "Create account", class: "btn btn-primary btn-block" %>
+    <% end %>
+
+    <p class="auth-alt">Already have an account? <%= link_to "Sign in", new_session_path %></p>
+  </div>
+</div>

@@ -1,0 +1,82 @@
+<% content_for :title, "Chat with your documents" %>
+<% content_for :body_class, "chat-page" %>
+
+<h1 class="page-title">Chat with your documents</h1>
+<p class="page-sub">
+  Answers are grounded in your documents via <span class="hl">retrieval-augmented generation</span>:
+  your question is embedded, the closest chunks are retrieved with pgvector, and the active LLM answers using only that context.
+</p>
+
+<div class="chat-shell" data-controller="chat" data-chat-queries-path="<%= queries_path %>">
+  <aside class="chat-side card">
+    <label for="chat-doc">Scope (optional)</label>
+    <select id="chat-doc" data-chat-target="documentSelect">
+      <option value="">All documents</option>
+      <% @documents.each do |doc| %>
+        <option value="<%= doc.id %>" <%= "selected" if params[:document_id].to_i == doc.id %>><%= truncate(doc.title, length: 34) %></option>
+      <% end %>
+    </select>
+    <div style="height: 14px;"></div>
+    <label>Active LLM</label>
+    <div style="font-size: 13px; color: var(--text-dim); line-height: 1.5;">
+      <% if @active_provider %>
+        <span class="badge badge-ok" style="margin-bottom: 6px;"><%= @active_provider.name %></span><br>
+        <span class="mono"><%= @active_provider.chat_model %></span><br>
+        <span class="card-hint">embedding: <%= @active_provider.embedding_model || "—" %></span>
+      <% else %>
+        <span class="badge badge-warn">No active provider</span><br>
+        <span class="card-hint" style="margin-top: 6px; display: inline-block;"><%= link_to "Configure one →", admin_providers_path %></span>
+      <% end %>
+    </div>
+    <hr class="divider">
+    <label>How it works</label>
+    <div class="card-hint" style="line-height: 1.7;">
+      🔍 Embed question → 🧩 cosine search top-6 chunks → 🤖 LLM answers with context → 📡 streamed live via SSE.
+    </div>
+    <div style="height: 16px;"></div>
+    <%= button_to "Clear chat", clear_queries_path, method: :delete,
+      class: "btn btn-danger btn-sm", data: { turbo_confirm: "Clear your entire chat history? This cannot be undone." } %>
+  </aside>
+
+  <section class="card">
+    <div class="chat-log" data-chat-target="log">
+      <% if @queries.any? %>
+        <% @queries.reverse_each do |q| %>
+          <div class="msg msg-user">
+            <div class="msg-avatar">✦</div>
+            <div class="msg-body">
+              <div class="msg-bubble"><%= q.question %></div>
+            </div>
+          </div>
+
+          <div class="msg">
+            <div class="msg-avatar">◈</div>
+            <div class="msg-body">
+              <div class="msg-bubble"><%= q.status == "failed" ? "⚠️ #{q.answer}" : markdown(q.answer || "") %></div>
+              <% if q.sources.any? %>
+                <div class="sources">
+                  <% q.sources.each_with_index do |s, i| %>
+                    <span class="source-chip" title="<%= s["snippet"] %>">
+                      [<%= i + 1 %>] <%= s["document_title"] %> <span class="rel">· <%= (s["relevance"] * 100).round(1) %>%</span>
+                    </span>
+                  <% end %>
+                </div>
+              <% end %>
+              <div class="msg-meta"><%= q.model || "—" %> · <%= time_ago_in_words(q.created_at) %> ago · <%= q.latency_ms ? "#{q.latency_ms}ms" : "" %></div>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="empty-state" data-chat-target="empty">
+          <div class="icon">💬</div>
+          <div>Ask anything about your documents.<br><span class="muted">Try: “Summarize what the document says about …”</span></div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="chat-input-row">
+      <input type="text" class="chat-input" placeholder="Ask your documents anything…" data-chat-target="input" data-action="keydown.enter->chat#ask" autocomplete="off" <%= "disabled" if @active_provider.nil? %>>
+      <button class="btn btn-primary" data-action="chat#ask" data-chat-target="sendBtn" <%= "disabled" if @active_provider.nil? %>>Send</button>
+    </div>
+  </section>
+</div>

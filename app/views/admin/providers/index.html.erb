@@ -1,0 +1,70 @@
+<% content_for :title, "AI Providers" %>
+
+<h1 class="page-title">AI Providers</h1>
+<p class="page-sub">
+  Cortex supports multiple LLM providers behind one interface. Add API keys, pick models, and switch the active
+  provider any time — queries and document embeddings follow automatically. Keys are encrypted at rest with
+  <span class="hl">ActiveRecord encryption</span>.
+</p>
+
+<div class="grid grid-cards">
+  <% @providers.each do |provider| %>
+    <div class="card card-hover provider-card" data-provider-id="<%= provider.id %>">
+      <div class="provider-head">
+        <div class="provider-logo logo-<%= provider.slug %>"><%= provider.name.first.upcase %></div>
+        <div>
+          <div class="provider-name"><%= provider.name %></div>
+          <div class="provider-models">chat: <%= provider.chat_model || "—" %><br>embed: <%= provider.embedding_model || "—" %></div>
+        </div>
+      </div>
+
+      <div class="provider-badge-row">
+        <% if provider.active? %>
+          <span class="badge badge-ok">● Active</span>
+        <% end %>
+        <span class="badge <%= provider.enabled? ? "badge-ok" : "badge-wait" %>"><%= provider.enabled? ? "Enabled" : "Disabled" %></span>
+        <% if provider.ready? %>
+          <span class="badge badge-ok">Ready</span>
+        <% elsif provider.enabled? %>
+          <span class="badge badge-wait"><%= provider.api_key.blank? ? "Add API key" : "Pick a model" %></span>
+        <% end %>
+      </div>
+
+      <div class="key-mask">key: <%= provider.api_key.present? ? provider.mask_key : "not set" %></div>
+      <% if provider.notes.present? %>
+        <div class="card-hint"><%= provider.notes %></div>
+      <% end %>
+
+      <div class="provider-actions">
+        <% unless provider.active? %>
+          <%= button_to "Make active", activate_admin_provider_path(provider), method: :post, class: "btn btn-primary btn-sm", data: { turbo_confirm: "Switch the chat provider to #{provider.name}?" } %>
+        <% end %>
+        <%= button_to (provider.enabled? ? "Disable" : "Enable"), toggle_admin_provider_path(provider), method: :post, class: "btn btn-ghost btn-sm" %>
+        <%= button_to "Test connection", test_admin_provider_path(provider), method: :post, class: "btn btn-ghost btn-sm" %>
+        <%= link_to "Configure", edit_admin_provider_path(provider), class: "btn btn-ghost btn-sm" %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<h2 class="section-title">Model suggestions</h2>
+<div class="card">
+  <div class="step-list">
+    <div class="step">
+      <div class="step-num">O</div>
+      <p><strong>OpenAI</strong> — chat: <span class="hl">gpt-4o-mini</span> · embedding: <span class="hl">text-embedding-3-small</span> (1536 dims).</p>
+    </div>
+    <div class="step">
+      <div class="step-num">C</div>
+      <p><strong>Anthropic</strong> — chat: <span class="hl">claude-sonnet-4-20250514</span> · embeddings not supported by the API — use OpenAI or Ollama for embeddings.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">G</div>
+      <p><strong>Google Gemini</strong> — chat: <span class="hl">gemini-3.5-flash-lite</span> (fastest &amp; cheapest) or <span class="hl">gemini-3.6-flash</span> · embedding: <span class="hl">gemini-embedding-001</span> (3072 dims).</p>
+    </div>
+    <div class="step">
+      <div class="step-num">L</div>
+      <p><strong>Ollama (local, free)</strong> — chat: <span class="hl">llama3.2</span> · embedding: <span class="hl">nomic-embed-text</span> (768 dims). No API key needed. Run <span class="hl">brew install ollama && ollama pull llama3.2 && ollama pull nomic-embed-text</span>.</p>
+    </div>
+  </div>
+</div>

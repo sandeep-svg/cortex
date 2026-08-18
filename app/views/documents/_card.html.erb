@@ -1,0 +1,23 @@
+<div class="card card-hover" data-controller="document" data-document-id="<%= document.id %>">
+  <div class="card-title">
+    <span class="card-title-text" title="<%= document.title %>"><%= truncate(document.title, length: 34) %></span>
+    <span class="badge <%= status_badge_class(document.status) %>" data-document-target="badge"><%= document.status %></span>
+  </div>
+
+  <div class="doc-file"><%= document.filename %></div>
+  <div class="doc-meta">
+    <span>📄 <%= document.content_type %></span>
+    <span>⚖️ <%= document.file_size_human %></span>
+    <span>🧩 <%= document.chunk_count %> chunks</span>
+  </div>
+
+  <% if document.failed? %>
+    <div class="doc-meta" style="color: var(--red);"><%= truncate(document.error.to_s, length: 90) %></div>
+  <% end %>
+
+  <div class="doc-actions">
+    <%= link_to "View", document_path(document), class: "btn btn-ghost btn-sm" %>
+    <%= link_to "Re-index", reindex_document_path(document), data: { turbo_method: :post }, class: "btn btn-ghost btn-sm" %>
+    <%= link_to "Delete", document_path(document), data: { turbo_method: :delete, turbo_confirm: "Delete this document and all its chunks?" }, class: "btn btn-danger btn-sm" %>
+  </div>
+</div>

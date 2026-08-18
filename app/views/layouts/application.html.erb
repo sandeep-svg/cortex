@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Cortex — Ask your documents" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="application-name" content="Cortex">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= yield :head %>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="<%= content_for(:body_class) %>">
+    <div class="aurora" aria-hidden="true">
+      <div class="aurora-blob blob-1"></div>
+      <div class="aurora-blob blob-2"></div>
+      <div class="aurora-blob blob-3"></div>
+      <div class="aurora-grid"></div>
+    </div>
+
+    <header class="nav glass">
+      <div class="nav-inner">
+        <a href="<%= root_path %>" class="brand">
+          <span class="brand-mark">◈</span>
+          <span class="brand-name">CORTEX</span>
+          <span class="brand-tag">retrieval intelligence</span>
+        </a>
+
+        <nav class="nav-links">
+          <% if authenticated? && current_user.admin? %>
+            <%= link_to "Dashboard", dashboard_path, class: nav_link_class(dashboard_path) %>
+            <%= link_to "Chat", queries_path, class: nav_link_class(queries_path) %>
+            <%= link_to "Documents", documents_path, class: nav_link_class(documents_path) %>
+            <%= link_to "AI Providers", admin_providers_path, class: nav_link_class(admin_providers_path) %>
+            <%= link_to "Users", users_path, class: nav_link_class(users_path) %>
+          <% elsif authenticated? %>
+            <%= link_to "Chat", queries_path, class: nav_link_class(queries_path) %>
+          <% end %>
+        </nav>
+
+        <div class="nav-status">
+          <% if authenticated? %>
+            <% if current_user.admin? %>
+              <% if (p = Provider.active_provider) %>
+                <span class="status-pill status-on" title="Active chat provider">
+                  <span class="pulse-dot"></span><%= p.name %> · <%= p.chat_model %>
+                </span>
+              <% else %>
+                <%= link_to admin_providers_path, class: "status-pill status-warn" do %>
+                  <span class="pulse-dot"></span>No active provider — configure
+                <% end %>
+              <% end %>
+            <% end %>
+            <div class="user-chip">
+              <span class="user-email"><%= current_user.email_address %></span>
+              <span class="badge <%= current_user.admin? ? "badge-ok" : "badge-wait" %>"><%= current_user.role %></span>
+            </div>
+            <%= button_to "Sign out", session_path, method: :delete, class: "btn btn-ghost btn-sm" %>
+          <% else %>
+            <%= link_to "Sign in", new_session_path, class: "btn btn-ghost btn-sm" %>
+            <%= link_to "Create account", new_registration_path, class: "btn btn-primary btn-sm" %>
+          <% end %>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <% if notice %>
+        <div class="flash flash-success"><%= notice %></div>
+      <% end %>
+      <% if alert %>
+        <div class="flash flash-error"><%= alert %></div>
+      <% end %>
+      <%= yield %>
+    </main>
+
+    <footer class="footer">
+      <span>Cortex · Rails <%= Rails.version %> · pgvector</span>
+      <span>RAG = retrieval + generation</span>
+    </footer>
+  </body>
+</html>

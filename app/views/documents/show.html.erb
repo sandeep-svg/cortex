@@ -1,0 +1,39 @@
+<% content_for :title, @document.title %>
+
+<div style="display:flex; align-items:center; gap:14px; margin-bottom: 22px; flex-wrap: wrap;">
+  <h1 class="page-title" style="margin: 0;"><%= @document.title %></h1>
+  <span class="badge <%= status_badge_class(@document.status) %>"><%= @document.status %></span>
+</div>
+
+<p class="page-sub">
+  <%= @document.filename %> · <%= @document.content_type %> · <%= @document.file_size_human %> ·
+  <%= @document.chunk_count %> chunks · <%= @document.word_count %> words
+</p>
+
+<div class="card">
+  <div class="card-title">Extracted chunks</div>
+  <div class="card-hint" style="margin-bottom: 14px;">
+    Each chunk is one row in <span class="hl">chunks</span> with its pgvector embedding. The search matches your question against these embeddings.
+  </div>
+
+  <div class="doc-preview">
+    <% if @chunks.any? %>
+      <% @chunks.each_with_index do |chunk, i| %>
+        <div style="padding: 12px 0; border-bottom: 1px solid rgba(148,163,255,.08);">
+          <div class="mono" style="color: var(--text-faint); margin-bottom: 4px;">#<%= chunk.position %> · ~<%= chunk.token_count %> tokens · embedding <%= chunk.embedding ? "stored" : "—" %></div>
+          <div style="font-size: 13.5px; color: var(--text-dim); white-space: pre-wrap;"><%= truncate(chunk.content, length: 320) %></div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="empty-state">
+        <div class="icon">🧩</div>
+        <div>No chunks yet — <span class="muted">re-index the document to generate them.</span></div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div style="margin-top: 22px; display: flex; gap: 10px;">
+  <%= link_to "Ask about this document", queries_path(document_id: @document.id), class: "btn btn-primary" %>
+  <%= link_to "← Back to library", documents_path, class: "btn btn-ghost" %>
+</div>

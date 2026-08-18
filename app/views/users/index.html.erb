@@ -1,0 +1,60 @@
+<% content_for :title, "Users" %>
+
+<h1 class="page-title">Users</h1>
+<p class="page-sub">
+  Manage who can do what. <span class="hl">Admins</span> can upload documents, configure AI providers,
+  see the dashboard and assign roles. <span class="hl">Users</span> get the product page and the chat.
+</p>
+
+<div class="card" style="padding: 0; overflow: hidden;">
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Joined</th>
+        <th style="text-align: right;">Assign role</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @users.each do |user| %>
+        <tr>
+          <td>
+            <%= user.email_address %>
+            <% if user == current_user %><span class="card-hint">(you)</span><% end %>
+          </td>
+          <td>
+            <span class="badge <%= user.admin? ? "badge-ok" : "badge-wait" %>"><%= user.role %></span>
+          </td>
+          <td class="mono" style="color: var(--text-faint);"><%= user.created_at.strftime("%b %d, %Y") %></td>
+          <td>
+            <div style="display: flex; justify-content: flex-end;">
+              <% if user == current_user %>
+                <span class="role-current">You can't change your own role</span>
+              <% else %>
+                <%= form_with model: user, url: user_path(user), class: "role-form", data: { turbo_confirm: "Change #{user.email_address} to #{user.admin? ? 'user' : 'admin'}?" } do |form| %>
+                  <%= form.select :role, User::ROLES.map { |r| [r.capitalize, r] }, selected: user.role %>
+                  <%= form.submit "Save", class: "btn btn-ghost btn-sm" %>
+                <% end %>
+              <% end %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div class="card" style="margin-top: 22px;">
+  <div class="card-title">Role permissions</div>
+  <div class="step-list" style="margin-top: 10px;">
+    <div class="step">
+      <div class="step-num">A</div>
+      <p><strong>Admin</strong> — dashboard, document upload &amp; management, AI provider configuration, user role assignment, chat.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">U</div>
+      <p><strong>User</strong> — product page and the chat interface. Cannot upload documents, change providers or assign roles.</p>
+    </div>
+  </div>
+</div>

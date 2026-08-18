@@ -1,0 +1,43 @@
+<% content_for :title, "Configure #{@provider.name}" %>
+
+<h1 class="page-title">Configure <%= @provider.name %></h1>
+<p class="page-sub">Slug: <span class="mono"><%= @provider.slug %></span> · <%= @provider.notes.presence || "API settings" %></p>
+
+<div style="max-width: 640px;">
+  <%= form_with model: @provider, url: admin_provider_path(@provider), class: "card" do |f| %>
+    <div class="form-grid">
+      <div class="field">
+        <%= f.label :api_key, "API key" %>
+        <%= f.password_field :api_key, value: @provider.api_key.present? ? @provider.mask_key : "", placeholder: "sk-…", autocomplete: "off" %>
+        <span class="hint">Stored encrypted. Leave as-is to keep the current key; type a new one to replace it. <%= "Ollama runs locally — no key needed." if @provider.slug == "ollama" %></span>
+      </div>
+
+      <div class="field">
+        <%= f.label :base_url, "Base URL (optional)" %>
+        <%= f.text_field :base_url, placeholder: @provider.slug == "ollama" ? "http://localhost:11434" : "e.g. https://api.openai.com/v1" %>
+        <span class="hint">Override the API endpoint — useful for proxies or self-hosted gateways.</span>
+      </div>
+
+      <div class="field">
+        <%= f.label :chat_model, "Chat model" %>
+        <%= f.text_field :chat_model, placeholder: "gpt-4o-mini" %>
+      </div>
+
+      <div class="field">
+        <%= f.label :embedding_model, "Embedding model (optional)" %>
+        <%= f.text_field :embedding_model, placeholder: "text-embedding-3-small" %>
+        <span class="hint">Used to embed documents + questions. If empty, another provider is used for embeddings.</span>
+      </div>
+
+      <div class="field checkbox-field">
+        <%= f.check_box :enabled %>
+        <%= f.label :enabled, "Enabled (allow this provider to be used)" %>
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <%= f.submit "Save configuration", class: "btn btn-primary" %>
+        <%= link_to "Back", admin_providers_path, class: "btn btn-ghost" %>
+      </div>
+    </div>
+  <% end %>
+</div>

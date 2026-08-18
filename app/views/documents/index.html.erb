@@ -1,0 +1,36 @@
+<% content_for :title, "Documents" %>
+
+<h1 class="page-title">Documents</h1>
+<p class="page-sub">Drop any file — PDF, Word, HTML, Markdown, CSV, JSON, plain text. Cortex extracts, chunks and embeds it in the background.</p>
+
+<div data-controller="upload">
+  <div class="dropzone" data-upload-target="dropzone" data-action="click->upload#pick dragover->upload#dragover dragleave->upload#dragleave drop->upload#drop">
+    <div class="dropzone-icon">⬆</div>
+    <div class="dropzone-title">Drop files here, or click to browse</div>
+    <div class="dropzone-sub">pdf · docx · html · md · txt · csv · json — processed with pdf-reader, docx, Nokogiri</div>
+    <input type="file" data-upload-target="input" class="visually-hidden" accept=".pdf,.docx,.doc,.html,.htm,.md,.markdown,.txt,.csv,.json" style="display:none;" multiple data-action="upload#filesSelected">
+  </div>
+
+  <div class="upload-progress card" data-upload-target="progress">
+    <div class="card-hint" data-upload-target="progressLabel" style="margin-bottom: 8px;">Uploading…</div>
+    <div class="progress-track"><div class="progress-bar" data-upload-target="progressBar"></div></div>
+  </div>
+
+  <div class="upload-progress card" data-upload-target="processing">
+    <div class="card-hint" style="margin-bottom: 8px;">🔄 Extracting, chunking and embedding in the background — this can take a minute for large files…</div>
+    <div class="progress-track"><div class="progress-bar" style="width: 100%;"></div></div>
+  </div>
+</div>
+
+<h2 class="section-title">Library</h2>
+<div class="grid grid-cards">
+  <% @documents.each do |document| %>
+    <%= render partial: "card", locals: { document: document } %>
+  <% end %>
+  <% if @documents.empty? %>
+    <div class="card empty-state">
+      <div class="icon">📄</div>
+      <div>Your library is empty. Upload a document above to get started.</div>
+    </div>
+  <% end %>
+</div>
