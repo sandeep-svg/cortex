@@ -22,7 +22,7 @@ gem "bcrypt", "~> 3.1.7"
 
 # --- Cortex: RAG stack ---
 # pgvector + Rails integration (vector columns, nearest_neighbors)
-gem "neighbor", "~> 0.4"
+gem "neighbor", "~> 1.2"
 # PDF text extraction
 gem "pdf-reader", "~> 2.13"
 # Word (.docx) text extraction
