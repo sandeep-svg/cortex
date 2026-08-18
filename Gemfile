@@ -30,7 +30,7 @@ gem "docx", "~> 0.8"
 # HTML text extraction
 gem "nokogiri", "~> 1.18"
 # LLM providers
-gem "ruby-openai", "~> 7.3"
+gem "ruby-openai", "~> 8.3"
 gem "anthropic", "~> 0.4"
 # Generic REST client for Gemini / Ollama / custom endpoints
 gem "httparty"
