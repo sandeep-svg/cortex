@@ -31,7 +31,7 @@ gem "docx", "~> 0.8"
 gem "nokogiri", "~> 1.18"
 # LLM providers
 gem "ruby-openai", "~> 7.3"
-gem "anthropic", "~> 0.4"
+gem "anthropic", "~> 1.67"
 # Generic REST client for Gemini / Ollama / custom endpoints
 gem "httparty"
 
